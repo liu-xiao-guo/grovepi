@@ -1,0 +1,44 @@
+name: grovepi-server
+version: "1.0"
+summary: A python server which provides access to sensors and devices on Grovepi
+description:  |
+     A python server controls Grovepi sensors and devices (LED and buzzers). 
+     The devices can be controlled by installing "sensorapp" on ubuntu phone
+grade: stable # must be 'stable' to release into candidate/stable channels
+confinement: strict # use 'strict' once you have the right plugs and slots
+
+apps:
+  start-server:
+    command: bin/start-server
+    daemon: simple
+    plugs:
+      - network
+      - network-bind
+
+  start-monitor:
+    command: bin/start-monitor
+    daemon: simple
+    plugs:
+      - network
+      - network-bind
+
+  mosquitto:
+    command: usr/sbin/mosquitto -c $SNAP/mosquitto.conf
+    daemon: simple
+    plugs: [network, network-bind]
+
+parts:
+  i2clib:
+    plugin: make
+    source: ./
+    build-packages: [python, python-dev]
+    after: [py]
+
+  py:
+    plugin: dump
+    source: ./python-env
+
+  mosquitto:
+    plugin: dump
+    source: conf
+    stage-packages: [mosquitto]
